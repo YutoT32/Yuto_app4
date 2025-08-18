@@ -1,3 +1,15 @@
+/**
+ * @typedef {object} GameUserInfo
+ * @property {string} secret
+ * @property {number} user_id
+ */
+
+/**
+ * @typedef {object} GameRoomInfo
+ * @property {string} game_version
+ * @property {number} game_room_id
+ */
+
 class NativeBridgeClient {
   platform = "other";
 
@@ -14,11 +26,18 @@ class NativeBridgeClient {
 
   _handleAndroidResponse(response) {
     const jsonObject = JSON.parse(response);
-    if (jsonObject.status === "success") return jsonObject.data;
-    else if (jsonObject.status === "fail") throw new Error(jsonObject.data.message);
+    if (jsonObject.status === "success") {
+      return jsonObject.data;
+    } else if (jsonObject.status === "fail") {
+      throw new Error(jsonObject.data.message);
+    }
     throw new Error(jsonObject.message);
   }
 
+  /**
+   * ユーザー情報を取得します。
+   * @returns {Promise<GameUserInfo>}
+   */
   async fetchUserInfo() {
     switch (this.platform) {
       case "ios":
@@ -30,6 +49,10 @@ class NativeBridgeClient {
     }
   }
 
+  /**
+   * ゲームルーム情報を取得します。
+   * @returns {Promise<GameRoomInfo>}
+   */
   async fetchGameRoomInfo() {
     switch (this.platform) {
       case "ios":
@@ -41,6 +64,10 @@ class NativeBridgeClient {
     }
   }
 
+  /**
+   * ゲームメダルを追加します。
+   * @returns {Promise<void>}
+   */
   async addGameMedal() {
     switch (this.platform) {
       case "ios":
@@ -52,6 +79,11 @@ class NativeBridgeClient {
     }
   }
 
+  /**
+   * ゲームルール画面を表示します。
+   * @param {string} url
+   * @returns {Promise<void>}
+   */
   async showGameRule(url) {
     switch (this.platform) {
       case "ios":
@@ -63,6 +95,26 @@ class NativeBridgeClient {
     }
   }
 
+  /**
+   * ゲームルームを開きます。
+   * @param {number} gameId
+   * @returns {Promise<void>}
+   */
+  async openGameRoom(gameId) {
+    switch (this.platform) {
+      case "ios":
+        return await window.webkit.messageHandlers.openGameRoom.postMessage(gameId);
+      case "android":
+        return this._handleAndroidResponse(await Android.openGameRoom(gameId));
+      default:
+        throw new Error("Unsupported platform");
+    }
+  }
+
+  /**
+   * ゲームルームを閉じます。
+   * @returns {Promise<void>}
+   */
   async closeGameRoom() {
     switch (this.platform) {
       case "ios":
@@ -74,6 +126,10 @@ class NativeBridgeClient {
     }
   }
 
+  /**
+   * ゲームルームが閉じたことをネイティブアプリに通知します。
+   * @returns {Promise<void>}
+   */
   async closeGameRoomNotification() {
     switch (this.platform) {
       case "ios":

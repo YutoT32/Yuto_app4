@@ -59,7 +59,10 @@ class WebSocketClient {
         return this.ws && this.ws.readyState === WebSocket.OPEN;
     }
 
-    // Client => Server
+    /**
+     * @param {number} targetUserID
+     * @param {number} seatNumber
+     */
     joinGame(targetUserID, seatNumber) {
         const message = {
             kind : SEND_MESSAGE_KIND.JOIN_GAME,
@@ -69,6 +72,9 @@ class WebSocketClient {
         this._sendMessage(message);
     }
 
+    /**
+     * @param {number} targetUserID
+     */
     leaveGame(targetUserID) {
         const message = {
             kind : SEND_MESSAGE_KIND.LEAVE_GAME,
@@ -77,6 +83,10 @@ class WebSocketClient {
         this._sendMessage(message);
     }
 
+    /**
+     * @param {number} targetUserID
+     * @param {number} gameMedalAmount
+     */
     betGameMedal(targetUserID, gameMedalAmount) {
         const message = {
             kind : SEND_MESSAGE_KIND.GAME_MEDAL_BET,
@@ -86,6 +96,9 @@ class WebSocketClient {
         this._sendMessage(message);
     }
 
+    /**
+     * @param {Array<{user_id: number, game_medal_amount: number, host_point: number, delete_point: number}>} distributions
+     */
     payoutMedals(distributions) {
         const message = {
             kind : SEND_MESSAGE_KIND.PAYOUT,
@@ -94,6 +107,10 @@ class WebSocketClient {
         this._sendMessage(message);
     }
 
+    /**
+     * @param {number} toUserID
+     * @param {object} gameState
+     */
     sendGamePlayStatus(toUserID, gameState) {
         const message = {
             kind : SEND_MESSAGE_KIND.GAME_PLAY_STATUS,
@@ -103,6 +120,9 @@ class WebSocketClient {
         this._sendMessage(message);
     }
 
+    /**
+     * @param {string} token
+     */
     sendAuthenticate(token) {
         const message = {
             kind : SEND_MESSAGE_KIND.AUTHENTICATE,
@@ -118,6 +138,9 @@ class WebSocketClient {
         this._sendMessage(message);
     }
 
+    /**
+     * @param {number} smallRate
+     */
     updateMinimumBet(smallRate) {
         const message = {
             kind : SEND_MESSAGE_KIND.UPDATE_MINIMUM_BET,
@@ -126,6 +149,9 @@ class WebSocketClient {
         this._sendMessage(message);
     }
 
+    /**
+     * @param {number} time
+     */
     fetchConsumedItems(time) {
         const message = {
             kind : SEND_MESSAGE_KIND.CONSUMED_ITEMS,
@@ -134,35 +160,102 @@ class WebSocketClient {
         this._sendMessage(message);
     }
 
-    // Server => Client
+    /**
+     * @param {(data: {
+     * users: Array<{
+     * seat_number: number,
+     * user_id: number,
+     * name: string,
+     * profile_image_url: string,
+     * have_game_medal_amount: number,
+     * bet_game_medal_amount: number
+     * }>,
+     * limit: number,
+     * host_user_id: number,
+     * game_point: number
+     * }) => void} handler
+     */
     onReceiveRoomStatus(handler) {
         this.handlers[RECEIVE_MESSAGE_KIND.ROOM_STATUS] = handler;
     }
 
+    /**
+     * @param {(data: {
+     * from_user_id: number,
+     * to_user_id: number,
+     * game_state: object
+     * }) => void} handler
+     */
     onReceiveGamePlayStatus(handler) {
         this.handlers[RECEIVE_MESSAGE_KIND.GAME_PLAY_STATUS] = handler;
     }
 
+    /**
+     * @param {(data: {
+     * message: string
+     * }) => void} handler
+     */
     onError(handler) {
         this.handlers[RECEIVE_MESSAGE_KIND.ERROR] = handler;
     }
 
+    /**
+     * @param {(data: {
+     * message: string,
+     * user_id: number,
+     * seat_number: number
+     * }) => void} handler
+     */
     onNoSeatsAvailableError(handler) {
         this.handlers[RECEIVE_MESSAGE_KIND.NO_SEATS_AVAILABLE_ERROR] = handler;
     }
 
+    /**
+     * @param {(data: {
+     * have_game_medal_amount: number,
+     * user_name: string,
+     * profile_image_url: string
+     * }) => void} handler
+     */
     onUserInfoRequest(handler) {
         this.handlers[RECEIVE_MESSAGE_KIND.USER_INFO_REQUEST] = handler;
     }
 
+    /**
+     * @param {(data: {
+     * seat_number: number,
+     * user_id: number
+     * }) => void} handler
+     */
     onUserDisconnect(handler) {
         this.handlers[RECEIVE_MESSAGE_KIND.USER_DISCONNECT] = handler;
     }
 
+    /**
+     * @param {(data: {
+     * items: Array<{
+     * item_id: number,
+     * item_name: string,
+     * count: number,
+     * score: number,
+     * bonus_score: number,
+     * consumed: number,
+     * user: {
+     * id: number,
+     * name: string,
+     * profile_image_url: string
+     * }
+     * }>,
+     * consumed: number
+     * }) => void} handler
+     */
     onReceiveConsumedItems(handler) {
         this.handlers[RECEIVE_MESSAGE_KIND.CONSUMED_ITEMS] = handler;
     }
 
+    /**
+     * @param {(data: {}) => void} handler
+     */
     onGameRoomClose(handler) {
         this.handlers[RECEIVE_MESSAGE_KIND.GAME_ROOM_CLOSE] = handler;
     }
