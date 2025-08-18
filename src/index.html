@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <title>Live Streaming Tool</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <script src="./modules/nativebridge-client.js" type="module" defer></script>
+    <script src="./index.js" type="module" defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin-top: 150pt;
+            background-color: white;
+        }
+        input[type="text"] {
+            width: 300px;
+        }
+        textarea {
+            width: 100%;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <p style="color:red;" id="not_connect">WebSocket未接続</p>
+    <p style="color:green; display: none;" id="connected">WebSocket接続中</p>
+
+    <input type="button" data-action="initialize" value="接続">
+    <input type="button" data-action="disconnect" value="切断">
+    <hr />
+    <input type="button" data-action="requestCloseGame" value="ゲームの終了">
+    <hr />
+    送信先ユーザーID(0なら全員): <input type="text" id="to_user_id" value="0">
+    ゲーム内容(任意のJSON): <input type="text" id="game_state" value='{"user_id": 123, "state": "ゲームの状態"}'>
+    <input type="button" data-action="sendGamePlayStatus" value="ゲーム内容の送信">
+    <hr />
+    着席するユーザーID: <input type="text" id="join_user_id" value="50000">
+    座る席番号(空欄なら空き席に座る): <input type="text" id="seat_number">
+    <input type="button" data-action="joinGame" value="着席する">
+    <hr />
+    離席するユーザーID: <input type="text" id="leave_user_id" value="50000">
+    <input type="button" data-action="leaveGame" value="離席する">
+    <hr />
+    ベットするユーザーID: <input type="text" id="bet_user_id" value="50000">
+    ベット額: <input type="text" id="bet_amount" value="100">
+    <input type="button" data-action="betGameMedal" value="ベットする">
+    <hr />
+    最小ベット額: <input type="text" id="min_bet_amount" value="100">
+    <input type="button" data-action="updateRate" value="変更する">
+    <hr />
+    ユーザーID: <input type="text" id="payout_user_id_1" value="50000">
+    支払い額: <input type="text" id="payout_amount_1" value="100">
+    <br />
+    ユーザーID: <input type="text" id="payout_user_id_2" value="">
+    支払い額: <input type="text" id="payout_amount_2" value="">
+    <br />
+    <input type="button" data-action="payoutMedals" value="ペイアウト(精算)">
+    <hr />
+    <input type="button" data-action="requestUserInfo" value="ユーザー情報の取得">
+    <hr />
+    消費時間(unix time)<input type="text" id="consume" value="1">
+    <input type="button" data-action="fetchConsumedItems" value="消費アイテムの取得">
+    <hr />
+    画面状態
+    <br />
+    <div id="user_status"></div>
+    <hr />
+    ログ
+    <br />
+    <textarea rows="10" cols="120" id="console"></textarea>
+</body>
+</html>
