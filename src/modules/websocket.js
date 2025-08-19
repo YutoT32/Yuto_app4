@@ -7,6 +7,7 @@ const RECEIVE_MESSAGE_KIND = {
     USER_INFO_REQUEST: 14,
     USER_DISCONNECT: 17,
     CONSUMED_ITEMS: 19,
+    ITEM_LISTS: 21,
 };
 
 const SEND_MESSAGE_KIND = {
@@ -19,6 +20,7 @@ const SEND_MESSAGE_KIND = {
     USER_INFO_REQUEST: 13,
     UPDATE_MINIMUM_BET: 15,
     CONSUMED_ITEMS: 18,
+    ITEM_LISTS: 20,
 }
 
 class WebSocketClient {
@@ -60,6 +62,7 @@ class WebSocketClient {
     }
 
     /**
+     * ゲーム参加(視聴者が参加するような場合)
      * @param {number} targetUserID
      * @param {number} seatNumber
      */
@@ -73,6 +76,7 @@ class WebSocketClient {
     }
 
     /**
+     * ゲームから退席
      * @param {number} targetUserID
      */
     leaveGame(targetUserID) {
@@ -84,6 +88,7 @@ class WebSocketClient {
     }
 
     /**
+     * ゲームメダルを賭ける
      * @param {number} targetUserID
      * @param {number} gameMedalAmount
      */
@@ -97,6 +102,7 @@ class WebSocketClient {
     }
 
     /**
+     * ゲームメダルを配布
      * @param {Array<{user_id: number, game_medal_amount: number, host_point: number, delete_point: number}>} distributions
      */
     payoutMedals(distributions) {
@@ -108,6 +114,8 @@ class WebSocketClient {
     }
 
     /**
+     * ゲームの状態を送信
+     * to_user_id=0の場合は全員に送信
      * @param {number} toUserID
      * @param {object} gameState
      */
@@ -121,6 +129,8 @@ class WebSocketClient {
     }
 
     /**
+     * 認証トークンを送信
+     * 配信者のみ
      * @param {string} token
      */
     sendAuthenticate(token) {
@@ -150,12 +160,25 @@ class WebSocketClient {
     }
 
     /**
+     * 消費アイテム取得
      * @param {number} time
      */
     fetchConsumedItems(time) {
         const message = {
             kind : SEND_MESSAGE_KIND.CONSUMED_ITEMS,
-            consume: time,
+            consume: String(time),
+        };
+        this._sendMessage(message);
+    }
+
+    /**
+     * アイテムリスト取得
+     * @param {number} time
+     */
+    fetchItemLists(time) {
+        const message = {
+            kind : SEND_MESSAGE_KIND.ITEM_LISTS,
+            period: String(time),
         };
         this._sendMessage(message);
     }
@@ -188,6 +211,58 @@ class WebSocketClient {
      */
     onReceiveGamePlayStatus(handler) {
         this.handlers[RECEIVE_MESSAGE_KIND.GAME_PLAY_STATUS] = handler;
+    }
+
+    /**
+     * @param {(data: {
+     * items: Array<{
+     * item_id: number,
+     * item_name: string,
+     * count: number,
+     * score: number,
+     * bonus_score: number,
+     * consumed: number,
+     * user: {
+     * id: number,
+     * name: string,
+     * profile_image_url: string
+     * }
+     * }>,
+     * consumed: number
+     * }) => void} handler
+     */
+    onReceiveConsumedItems(handler) {
+        this.handlers[RECEIVE_MESSAGE_KIND.CONSUMED_ITEMS] = handler;
+    }
+
+    /**
+     * @param {(data: {
+     * items: Array<{
+     * id: number,
+     * name: string,
+     * price: number,
+     * level: number,
+     * kind: number,
+     * score: number,
+     * score: number,
+     * tab_id: number,
+     * start: number,
+     * end: number,
+     * unlocked_level: number,
+     * icon_image_url: string,
+     * }>
+     * }) => void} handler
+     */
+    onReceiveItemLists(handler) {
+        this.handlers[RECEIVE_MESSAGE_KIND.ITEM_LISTS] = handler;
+    }
+
+    /**
+     * ゲーム終了
+     * @param {(data: {}) => void} handler
+     */
+    onGameRoomClose(handler) {
+        this.handlers[RECEIVE_MESSAGE_KIND.GAME_ROOM_CLOSE] = handler;
     }
 
     /**
@@ -229,35 +304,6 @@ class WebSocketClient {
      */
     onUserDisconnect(handler) {
         this.handlers[RECEIVE_MESSAGE_KIND.USER_DISCONNECT] = handler;
-    }
-
-    /**
-     * @param {(data: {
-     * items: Array<{
-     * item_id: number,
-     * item_name: string,
-     * count: number,
-     * score: number,
-     * bonus_score: number,
-     * consumed: number,
-     * user: {
-     * id: number,
-     * name: string,
-     * profile_image_url: string
-     * }
-     * }>,
-     * consumed: number
-     * }) => void} handler
-     */
-    onReceiveConsumedItems(handler) {
-        this.handlers[RECEIVE_MESSAGE_KIND.CONSUMED_ITEMS] = handler;
-    }
-
-    /**
-     * @param {(data: {}) => void} handler
-     */
-    onGameRoomClose(handler) {
-        this.handlers[RECEIVE_MESSAGE_KIND.GAME_ROOM_CLOSE] = handler;
     }
 
     _sendMessage(message) {

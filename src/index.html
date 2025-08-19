@@ -4,11 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Screen</title>
-    <link rel="stylesheet" href="styles/app.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
     
+    <div id="content">
+        <div id="info">
+            <p>接続ユーザーID: <span id="userId"></span></p>
+            <p>ホストユーザーID: <span id="hostUserId"></span></p>
+        </div>
+        <section>
+            <!-- 閉じるボタン-->
+            <button id="closeButton" class="close-button">
+                <span>ゲーム終了</span>
+            </button>
 
+            <!-- 消費アイテム取得ボタン-->
+            <button id="consumedItems" class="close-button">
+                <span>消費アイテム取得</span>
+                <input type="hidden" id="consumedItems-time" value="0">
+            </button>
+
+            <!-- アイテムリスト取得ボタン-->
+            <button id="itemLists" class="close-button">
+                <span>アイテムリスト取得</span>
+            </button>
+       </section>
+
+        <section>
+            <textarea id="log" rows="10" cols="50" placeholder="ログ出力エリア"></textarea>
+        </section>
+
+        <section>
+            <div id="console" aria-live="polite"></div>
+        </section>
+    </div>
 </body>
 </html>
