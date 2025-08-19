@@ -4,39 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Screen</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="styles/app.css">
 </head>
 <body>
     
     <div id="content">
         <div id="info">
-            <p>接続ユーザーID: <span id="userId"></span></p>
-            <p>ホストユーザーID: <span id="hostUserId"></span></p>
+            <div class="info-item">
+                <span class="material-icons">person</span>
+                <p>接続ユーザーID: <span id="userId"></span></p>
+            </div>
+            <div class="info-item">
+                <span class="material-icons">home</span>
+                <p>ホストユーザーID: <span id="hostUserId"></span></p>
+            </div>
         </div>
-        <section>
-            <!-- 閉じるボタン-->
-            <button id="closeButton" class="close-button">
+        
+        <section class="button-area">
+            <button id="closeButton" class="styled-button danger">
+                <span class="material-icons">logout</span>
                 <span>ゲーム終了</span>
             </button>
-
-            <!-- 消費アイテム取得ボタン-->
-            <button id="consumedItems" class="close-button">
+            <button id="consumedItems" class="styled-button">
+                <span class="material-icons">shopping_bag</span>
                 <span>消費アイテム取得</span>
                 <input type="hidden" id="consumedItems-time" value="0">
             </button>
-
-            <!-- アイテムリスト取得ボタン-->
-            <button id="itemLists" class="close-button">
+            <button id="itemLists" class="styled-button">
+                <span class="material-icons">list_alt</span>
                 <span>アイテムリスト取得</span>
             </button>
        </section>
 
         <section>
             <textarea id="log" rows="10" cols="50" placeholder="ログ出力エリア"></textarea>
-        </section>
-
-        <section>
-            <div id="console" aria-live="polite"></div>
         </section>
     </div>
 </body>

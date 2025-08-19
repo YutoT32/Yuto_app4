@@ -11,8 +11,6 @@ const appState = {
 const webSocket = new WebSocketClient();
 const nativeBridge = new NativeBridgeClient(navigator.userAgent);
 
-let currentGameState = {};
-
 const setupWebSocketHandlers = () => {
     webSocket.onReceiveRoomStatus(data => {
         appState.isHost = (data.host_user_id === appState.userInfo.user_id);
@@ -79,7 +77,6 @@ const initialize = async () => {
         }
 
     } catch (error) {
-        // console.error('Initialization failed:', error);
         logMessage(`Initialization failed: ${error.message}`);
     }
 };
@@ -147,11 +144,5 @@ function logMessage(message) {
     if (logArea) {
         logArea.value += `${message}\n`;
     }
-}
-// ログ初期化
-function clearLog() {
-    const logArea = document.getElementById('log');
-    if (logArea) {
-        logArea.value = '';
-    }
+    logArea.scrollTop = logArea.scrollHeight; // スクロールを最新のログに合わせる
 }
