@@ -5,12 +5,15 @@
   --dark-text: #003048;
   --light-text: #ffffff;
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  /* ゲーム用に色を追加 */
+  --yes-color: #28a745;
 }
 
 body {
   margin: 0;
   font-family: "M PLUS Rounded 1c", sans-serif;
   color: var(--dark-text);
+  background-color: #f0f2f5; /* 背景色を少し設定して見やすくします */
 }
 
 #content {
@@ -28,6 +31,207 @@ body {
   padding: 20px;
   gap: 20px;
   animation: slideUp 0.5s ease-out forwards;
+  /* コンテンツが多い場合にスクロールできるように */
+  overflow-y: auto;
+}
+
+#game-container {
+  background-color: var(--light-gray);
+  padding: 20px;
+  border-radius: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#game-container h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-align: center;
+  margin: 0 0 20px 0;
+}
+
+#game-container h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 16px 0 8px 0;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 4px;
+}
+
+/* ゲーム設定画面 */
+#setup-screen .control-group {
+  margin-bottom: 16px;
+}
+
+#setup-screen label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+#setup-screen input[type="text"],
+#setup-screen input[type="number"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+#start-game-btn {
+  /* 既存のボタンクラスを流用 */
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--light-text);
+  background-color: var(--primary-color);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* ゲーム進行画面 */
+#game-screen {
+  /* 最初は非表示。JSで表示を切り替えます */
+  display: none;
+}
+
+#timer {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-align: center;
+  margin: 0 0 16px 0;
+}
+
+#question-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+#question-input {
+  flex-grow: 1;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+#question-controls .btn {
+  /* 既存のボタンスタイルを少し調整 */
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--light-text);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+#question-controls .btn:hover {
+  opacity: 0.85;
+}
+
+#yes-btn {
+  background-color: var(--yes-color);
+}
+#no-btn {
+  background-color: var(--danger-color);
+}
+
+/* 質問ログ (スクロール対応) */
+#qa-log-container {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px;
+  /* 高さを固定し、超えたらスクロール */
+  height: 150px;
+  overflow-y: auto;
+  display: flex;
+  /* 新しいログが下に追加され、自動でスクロールするように */
+  flex-direction: column-reverse;
+}
+
+#qa-log {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background-color: var(--light-gray);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.response {
+  font-weight: 700;
+  color: var(--light-text);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  min-width: 50px;
+  text-align: center;
+}
+
+.response-yes {
+  background-color: var(--yes-color);
+}
+
+.response-no {
+  background-color: var(--danger-color);
+}
+
+/* 答え表示エリア */
+#revealed-answer {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--yes-color);
+  margin-top: 16px;
+  min-height: 2.2rem; /* 表示されてなくても高さを確保 */
+}
+
+#reveal-btn,
+#reset-btn {
+  /* 既存のボタンクラスを流用 */
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--light-text);
+  background-color: var(--primary-color);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  margin-top: 16px;
+}
+#reset-btn {
+  background-color: #7f8c8d; /* リセットは少し違う色に */
 }
 
 @keyframes slideUp {
