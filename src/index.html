@@ -1,49 +1,65 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  aa
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Game Screen</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-</head>
-<body>
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <div id="content">
-        <div id="info">
-            <div class="info-item">
-                <span class="material-icons">person</span>
-                <p>接続ユーザーID: <span id="userId"></span></p>
-            </div>
-            <div class="info-item">
-                <span class="material-icons">home</span>
-                <p>ホストユーザーID: <span id="hostUserId"></span></p>
-            </div>
+      <div id="info">
+        <div class="info-item">
+          <span class="material-icons">person</span>
+          <p>接続ユーザーID: <span id="userId"></span></p>
         </div>
-        
-        <section class="button-area">
-            <button id="closeButton" class="styled-button danger">
-                <span class="material-icons">logout</span>
-                <span>ゲーム終了</span>
-            </button>
-            <button id="consumedItems" class="styled-button">
-                <span class="material-icons">shopping_bag</span>
-                <span>消費アイテム取得</span>
-                <input type="hidden" id="consumedItems-time" value="0">
-            </button>
-            <button id="itemLists" class="styled-button">
-                <span class="material-icons">list_alt</span>
-                <span>アイテムリスト取得</span>
-            </button>
-       </section>
+        <div class="info-item">
+          <span class="material-icons">home</span>
+          <p>ホストユーザーID: <span id="hostUserId"></span></p>
+        </div>
+      </div>
 
-       <img src="/images/mysteryman.png" width="50px" alt="image" class="image" />
+      <section class="button-area">
+        <button id="closeButton" class="styled-button danger">
+          <span class="material-icons">logout</span>
+          <span>ゲーム終了</span>
+        </button>
+        <button id="consumedItems" class="styled-button">
+          <span class="material-icons">shopping_bag</span>
+          <span>消費アイテム取得</span>
+          <input type="hidden" id="consumedItems-time" value="0" />
+        </button>
+        <button id="itemLists" class="styled-button">
+          <span class="material-icons">list_alt</span>
+          <span>アイテムリスト取得</span>
+        </button>
+      </section>
 
-        <section>
-            <textarea id="log" rows="10" cols="50" placeholder="ログ出力エリア"></textarea>
-        </section>
+      <img
+        src="/images/mysteryman.png"
+        width="50px"
+        alt="image"
+        class="image"
+      />
+
+      <section>
+        <textarea
+          id="log"
+          rows="10"
+          cols="50"
+          placeholder="ログ出力エリア"
+        ></textarea>
+      </section>
     </div>
-</body>
+  </body>
 </html>
