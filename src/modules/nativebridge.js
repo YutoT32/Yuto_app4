@@ -10,6 +10,17 @@
  * @property {number} game_room_id
  */
 
+
+const userInfoDummy = {
+    secret: "dev_secret",
+    user_id: 13727106 // websocketに接続する視聴者のユーザーID
+};
+
+const roomInfoDummy = {
+    game_version: "1.0.0",
+    game_room_id: 13733836 // websocketのルームID(配信者のユーザーID)
+};
+
 class NativeBridgeClient {
   platform = "other";
 
@@ -44,6 +55,8 @@ class NativeBridgeClient {
         return await window.webkit.messageHandlers.fetchUserInfo.postMessage("");
       case "android":
         return this._handleAndroidResponse(await Android.fetchUserInfo());
+      case "development":
+        return userInfoDummy;
       default:
         throw new Error("Unsupported platform");
     }
@@ -59,6 +72,8 @@ class NativeBridgeClient {
         return await window.webkit.messageHandlers.fetchGameRoomInfo.postMessage("");
       case "android":
         return this._handleAndroidResponse(await Android.fetchGameRoomInfo());
+      case "development":
+        return roomInfoDummy;
       default:
         throw new Error("Unsupported platform");
     }
