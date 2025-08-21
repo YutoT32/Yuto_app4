@@ -6,10 +6,15 @@ const appState = {
     userInfo: null,
     roomInfo: null,
     isHost: false,
+    phase: "setup",            // "setup" | "playing" | "reveal" | "ended"
+    startAt: null,
+    durationSec: null,
+    version: 0,                // 状態の世代
+    secretAnswer: "",          // ホストのみ保持（送らない）
 };
 
 const MSG_TYPES = {
-    GAME_START: "game_start",
+    GAME_STATE: "game_state",
 };
 
 const webSocket = new WebSocketClient();
@@ -41,13 +46,11 @@ const setupWebSocketHandlers = () => {
     });
 
     webSocket.onReceiveGamePlayStatus(data => {
-        logMessage(`Received game play status: ${JSON.stringify(data)}`);
-
-        if (data.type === MSG_TYPES.GAME_START) {
-            // ルーム全員が game-screen を表示
-            showGameScreenAndStartTimer(data);
+        if (data.type === MSG_TYPES.GAME_STATE) {
+            applyGameState(data.payload);
         }
     });
+
 
     webSocket.onReceiveConsumedItems(data => {
         logMessage(`Received consumed items: ${JSON.stringify(data)}`);
@@ -69,20 +72,6 @@ const initialize = async () => {
         ]);
         appState.userInfo = userInfo;
         appState.roomInfo = roomInfo;
-//        appState.isHost = (userInfo.user_id === roomInfo.game_room_id);
-        setupWebSocketHandlers();
-        
-        await webSocket.connect(appState.userInfo.user_id, appState.roomInfo.game_room_id);
-        
-        if (appState.isHost) {
-            webSocket.sendAuthenticate(appState.userInfo.secret);
-        }
-
-        webSocket.requestUserInfo();
-
-        // consumedItems-timeに現在のUNIXタイムスタンプを設定
-        const currentTime = Math.floor(Date.now() / 1000);
-        document.getElementById('consumedItems-time').value = currentTime;
 
         const userId = document.getElementById('userId');
         if (userId) {
@@ -92,6 +81,30 @@ const initialize = async () => {
         if (hostUserId) {
             hostUserId.textContent = `${appState.roomInfo.game_room_id}`;
         }
+
+        appState.isHost = (userInfo.user_id === roomInfo.game_room_id);
+        setupWebSocketHandlers();
+        
+        await webSocket.connect(appState.userInfo.user_id, appState.roomInfo.game_room_id);
+        
+        const waiting = document.getElementById('waiting-screen');
+        if (appState.isHost) {
+            webSocket.sendAuthenticate(appState.userInfo.secret);
+            setupScreen.style.display = "block";
+            gameScreen.style.display = "none";
+            if (waiting) waiting.style.display = 'none';
+        } else {
+            // ゲストは最初からゲーム画面待機にする
+            setupScreen.style.display = "none";
+            gameScreen.style.display = "none"; // GAME_STARTを受けるまで非表示
+            if (waiting) waiting.style.display = 'block';
+        }
+
+        webSocket.requestUserInfo();
+
+        // consumedItems-timeに現在のUNIXタイムスタンプを設定
+        const currentTime = Math.floor(Date.now() / 1000);
+        document.getElementById('consumedItems-time').value = currentTime;
 
     } catch (error) {
         logMessage(`Initialization failed: ${error.message}`);
@@ -117,8 +130,6 @@ const resetBtn = document.getElementById("reset-btn");
 let secretAnswer = "";
 let timerInterval;
 let timeLeft = 0;
-
-
 
 // --- アプリケーションの開始 ---
 window.addEventListener('DOMContentLoaded', () => {
@@ -150,20 +161,52 @@ window.addEventListener('DOMContentLoaded', () => {
         showGameScreenAndStartTimer(payload);
     });
 
+    function applyGameState(state) {
+        // 古い/重複を弾く
+        if (state.version !== undefined && state.version < appState.version) return;
+
+        // 反映
+        appState.phase = state.phase;
+        appState.startAt = state.startAt ?? appState.startAt;
+        appState.durationSec = state.durationSec ?? appState.durationSec;
+        appState.version = state.version ?? (appState.version + 1);
+
+        // 画面切替は phase だけを見る
+        if (appState.phase === "setup") {
+            setupScreen.style.display = "block";
+            gameScreen.style.display = "none";
+        } else if (appState.phase === "playing") {
+            setupScreen.style.display = "none";
+            gameScreen.style.display = "block";
+            // 同期タイマー
+            const now = Math.floor(Date.now() / 1000);
+            const elapsed = Math.max(0, now - appState.startAt);
+            timeLeft = Math.max(0, appState.durationSec - elapsed);
+            updateTimerDisplay();
+            startTimer(); // すでに走っていればガードしてもOK
+        } else if (appState.phase === "reveal") {
+            // reveal のUIに切替（必要なら）
+        } else if (appState.phase === "ended") {
+            // 終了UIに切替（必要なら）
+        }
+    }
+
+
     // タイマーを開始する関数
     function startTimer() {
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        updateTimerDisplay();
-        if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        timerDisplay.textContent = "回答タイム！";
-        // 時間切れになったら質問ボタンを無効化
-        questionInput.disabled = true;
-        yesBtn.disabled = true;
-        noBtn.disabled = true;
-        }
-    }, 1000);
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+            if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerDisplay.textContent = "回答タイム！";
+            timerDisplay.classList.add("answer-time");
+            // 時間切れになったら質問ボタンを無効化
+            questionInput.disabled = true;
+            yesBtn.disabled = true;
+            noBtn.disabled = true;
+            }
+        }, 1000);
     }
 
     // タイマー表示を更新する関数
@@ -201,53 +244,53 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // 質問をログに追加する関数
     function addLogEntry(response) {
-    const questionText = questionInput.value.trim();
-    if (questionText === "") {
-        alert("質問を入力してください。");
-        return;
-    }
+        const questionText = questionInput.value.trim();
+        if (questionText === "") {
+            alert("質問を入力してください。");
+            return;
+        }
 
-    const logEntry = document.createElement("div");
-    logEntry.className = "log-entry";
+        const logEntry = document.createElement("div");
+        logEntry.className = "log-entry";
 
-    const questionSpan = document.createElement("span");
-    questionSpan.textContent = `Q. ${questionText}`;
+        const questionSpan = document.createElement("span");
+        questionSpan.textContent = `Q. ${questionText}`;
 
-    const responseSpan = document.createElement("span");
-    responseSpan.className = "response";
-    if (response === "Yes") {
-        responseSpan.textContent = "◯ YES";
-        responseSpan.classList.add("response-yes");
-    } else {
-        responseSpan.textContent = "✕ NO";
-        responseSpan.classList.add("response-no");
-    }
+        const responseSpan = document.createElement("span");
+        responseSpan.className = "response";
+        if (response === "Yes") {
+            responseSpan.textContent = "◯ YES";
+            responseSpan.classList.add("response-yes");
+        } else {
+            responseSpan.textContent = "✕ NO";
+            responseSpan.classList.add("response-no");
+        }
 
-    logEntry.appendChild(questionSpan);
-    logEntry.appendChild(responseSpan);
+        logEntry.appendChild(questionSpan);
+        logEntry.appendChild(responseSpan);
 
-    // 新しい質問をログの一番上に追加
-    qaLog.prepend(logEntry);
+        // 新しい質問をログの一番上に追加
+        qaLog.prepend(logEntry);
 
-    questionInput.value = ""; // 入力欄をクリア
-    questionInput.focus(); // 入力欄にフォーカスを戻す
+        questionInput.value = ""; // 入力欄をクリア
+        questionInput.focus(); // 入力欄にフォーカスを戻す
 
-    // スクロールを一番下まで移動 (新しいログが見えるように)
-    const logContainer = document.getElementById("qa-log-container");
-    logContainer.scrollTop = 0;
+        // スクロールを一番下まで移動 (新しいログが見えるように)
+        const logContainer = document.getElementById("qa-log-container");
+        logContainer.scrollTop = 0;
     }
 
     // Enterキーで質問を追加できるようにする
     questionInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        // デフォルトではYesボタンが押されたことにする
-        addLogEntry("Yes");
-    }
+        if (e.key === "Enter") {
+            // デフォルトではYesボタンが押されたことにする
+            addLogEntry("Yes");
+        }
     });
 
     // 答えを表示するボタンの処理
     revealBtn.addEventListener("click", () => {
-    revealedAnswerDisplay.textContent = `答えは「${secretAnswer}」でした！`;
+        revealedAnswerDisplay.textContent = `答えは「${secretAnswer}」でした！`;
     });
 /*
     // リセットボタンの処理
