@@ -12,6 +12,16 @@ const webSocket = new WebSocketClient();
 const nativeBridge = new NativeBridgeClient(navigator.userAgent);
 
 const setupWebSocketHandlers = () => {
+    webSocket.onWSOpen = () => {
+        logMessage(`WebSocket connection established to room:${appState.roomInfo.game_room_id}`);
+    };
+    webSocket.onWSClose = () => {
+        logMessage('WebSocket connection closed.');
+    };
+    webSocket.onWSError = (error) => {
+        logMessage(`WebSocket error: ${error.message}`);
+    };
+
     webSocket.onReceiveRoomStatus(data => {
         appState.isHost = (data.host_user_id === appState.userInfo.user_id);
     });
@@ -39,10 +49,12 @@ const setupWebSocketHandlers = () => {
     webSocket.onReceiveConsumedItems(data => {
         logMessage(`Received consumed items: ${JSON.stringify(data)}`);
         document.getElementById('consumedItems-time').value = data.consumed || 0;
+        webSocket.sendGamePlayStatus(0, data)
     });
 
     webSocket.onReceiveItemLists(data => {
         logMessage(`Received item lists: ${JSON.stringify(data)}`);
+        webSocket.sendGamePlayStatus(0, data)
     });
 };
 
@@ -55,11 +67,13 @@ const initialize = async () => {
         appState.userInfo = userInfo;
         appState.roomInfo = roomInfo;
         appState.isHost = (userInfo.user_id === roomInfo.game_room_id);
+        setupWebSocketHandlers();
         
         await webSocket.connect(appState.userInfo.user_id, appState.roomInfo.game_room_id);
         
-        webSocket.sendAuthenticate(appState.userInfo.secret);
-        setupWebSocketHandlers();
+        if (appState.isHost) {
+            webSocket.sendAuthenticate(appState.userInfo.secret);
+        }
 
         webSocket.requestUserInfo();
 
