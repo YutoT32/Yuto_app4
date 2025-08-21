@@ -224,13 +224,13 @@ window.addEventListener('DOMContentLoaded', () => {
     revealBtn.addEventListener("click", () => {
     revealedAnswerDisplay.textContent = `答えは「${secretAnswer}」でした！`;
     });
-
+/*
     // リセットボタンの処理
     resetBtn.addEventListener("click", () => {
     // ページをリロードするのが一番簡単で確実
     location.reload();
     });
-
+*/
     // ゲーム終了
     const closeButton = document.getElementById('closeButton');
     if (closeButton) {
