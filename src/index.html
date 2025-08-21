@@ -18,6 +18,42 @@
   </head>
   <body>
     <div id="content">
+      <div id="game-container">
+        <h1>私は誰でしょう？ゲーム</h1>
+
+        <div id="setup-screen">
+            <div class="control-group">
+                <label for="secret-answer">答えを入力してください</label>
+                <input type="text" id="secret-answer" placeholder="例: ドラえもん">
+            </div>
+            <div class="control-group">
+                <label for="game-duration">ゲーム時間（分）</label>
+                <input type="number" id="game-duration" value="5" min="1">
+            </div>
+            <button id="start-game-btn" class="btn">ゲーム開始</button>
+        </div>
+
+        <div id="game-screen">
+            <h2 id="timer">00:00</h2>
+            
+            <h3>拾った質問</h3>
+            <div id="question-controls">
+                <input type="text" id="question-input" placeholder="リスナーの質問を入力">
+                <button id="yes-btn" class="btn">◯ Yes</button>
+                <button id="no-btn" class="btn">✕ No</button>
+            </div>
+
+            <h3>質問ログ</h3>
+            <div id="qa-log-container">
+                <div id="qa-log"></div>
+            </div>
+
+            <button id="reveal-btn" class="btn">答えを表示</button>
+            <div id="revealed-answer"></div>
+            <button id="reset-btn" class="btn">リセット</button>
+        </div>
+      </div>
+      
       <div id="info">
         <div class="info-item">
           <span class="material-icons">person</span>
