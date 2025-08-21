@@ -95,126 +95,140 @@ const initialize = async () => {
     }
 };
 
+const setupScreen = document.getElementById("setup-screen");
+const gameScreen = document.getElementById("game-screen");
+const startGameBtn = document.getElementById("start-game-btn");
+const secretAnswerInput = document.getElementById("secret-answer");
+const gameDurationInput = document.getElementById("game-duration");
+
+const timerDisplay = document.getElementById("timer");
+const questionInput = document.getElementById("question-input");
+const yesBtn = document.getElementById("yes-btn");
+const noBtn = document.getElementById("no-btn");
+const qaLog = document.getElementById("qa-log");
+
+const revealBtn = document.getElementById("reveal-btn");
+const revealedAnswerDisplay = document.getElementById("revealed-answer");
+const resetBtn = document.getElementById("reset-btn");
+
+let secretAnswer = "";
+let timerInterval;
+let timeLeft = 0;
+
+
 // --- アプリケーションの開始 ---
 window.addEventListener('DOMContentLoaded', () => {
     initialize();
 
-    const setupScreen = document.getElementById('setup-screen');
-    const gameScreen = document.getElementById('game-screen');
-    const startGameBtn = document.getElementById('start-game-btn');
-    const secretAnswerInput = document.getElementById('secret-answer');
-    const gameDurationInput = document.getElementById('game-duration');
-    
-    const timerDisplay = document.getElementById('timer');
-    const questionInput = document.getElementById('question-input');
-    const yesBtn = document.getElementById('yes-btn');
-    const noBtn = document.getElementById('no-btn');
-    const qaLog = document.getElementById('qa-log');
-
-    const revealBtn = document.getElementById('reveal-btn');
-    const revealedAnswerDisplay = document.getElementById('revealed-answer');
-    const resetBtn = document.getElementById('reset-btn');
-
-    let secretAnswer = '';
-    let timerInterval;
-    let timeLeft = 0;
-
     // ゲーム開始ボタンの処理
-    startGameBtn.addEventListener('click', () => {
-        secretAnswer = secretAnswerInput.value;
-        const duration = parseInt(gameDurationInput.value, 10);
+    startGameBtn.addEventListener("click", () => {
+    secretAnswer = secretAnswerInput.value;
+    const duration = parseInt(gameDurationInput.value, 10);
 
-        if (!secretAnswer || isNaN(duration) || duration <= 0) {
-            alert('「答え」と「ゲーム時間」を正しく入力してください。');
-            return;
-        }
+    if (!secretAnswer || isNaN(duration) || duration <= 0) {
+        alert("「答え」と「ゲーム時間」を正しく入力してください。");
+        return;
+    }
 
-        timeLeft = duration * 60;
-        setupScreen.style.display = 'none';
-        gameScreen.style.display = 'block';
+    // 答え入力欄を非表示にする
+    secretAnswerInput.style.display = "none";
+    document.querySelector(
+        "#setup-screen > div:first-child > label"
+    ).style.display = "none";
 
-        updateTimerDisplay();
-        startTimer();
+    timeLeft = duration * 60;
+    setupScreen.style.display = "none";
+    gameScreen.style.display = "block";
+
+    updateTimerDisplay();
+    startTimer();
     });
-    
+
     // タイマーを開始する関数
     function startTimer() {
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            updateTimerDisplay();
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                timerDisplay.textContent = '回答タイム！';
-                // 時間切れになったら質問ボタンを無効化
-                questionInput.disabled = true;
-                yesBtn.disabled = true;
-                noBtn.disabled = true;
-            }
-        }, 1000);
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        timerDisplay.textContent = "回答タイム！";
+        // 時間切れになったら質問ボタンを無効化
+        questionInput.disabled = true;
+        yesBtn.disabled = true;
+        noBtn.disabled = true;
+        }
+    }, 1000);
     }
 
     // タイマー表示を更新する関数
     function updateTimerDisplay() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerDisplay.textContent = `${String(minutes).padStart(
+        2,
+        "0"
+    )}:${String(seconds).padStart(2, "0")}`;
     }
-    
+
     // Yes/Noボタンの処理
-    yesBtn.addEventListener('click', () => addLogEntry('Yes'));
-    noBtn.addEventListener('click', () => addLogEntry('No'));
-    
+    yesBtn.addEventListener("click", () => addLogEntry("Yes"));
+    noBtn.addEventListener("click", () => addLogEntry("No"));
+
     // 質問をログに追加する関数
     function addLogEntry(response) {
-        const questionText = questionInput.value.trim();
-        if (questionText === '') {
-            alert('質問を入力してください。');
-            return;
-        }
+    const questionText = questionInput.value.trim();
+    if (questionText === "") {
+        alert("質問を入力してください。");
+        return;
+    }
 
-        const logEntry = document.createElement('div');
-        logEntry.className = 'log-entry';
+    const logEntry = document.createElement("div");
+    logEntry.className = "log-entry";
 
-        const questionSpan = document.createElement('span');
-        questionSpan.textContent = `Q. ${questionText}`;
+    const questionSpan = document.createElement("span");
+    questionSpan.textContent = `Q. ${questionText}`;
 
-        const responseSpan = document.createElement('span');
-        responseSpan.className = 'response';
-        if (response === 'Yes') {
-            responseSpan.textContent = '◯ YES';
-            responseSpan.classList.add('response-yes');
-        } else {
-            responseSpan.textContent = '✕ NO';
-            responseSpan.classList.add('response-no');
-        }
-        
-        logEntry.appendChild(questionSpan);
-        logEntry.appendChild(responseSpan);
-        
-        // 新しい質問をログの一番上に追加
-        qaLog.prepend(logEntry);
-        
-        questionInput.value = ''; // 入力欄をクリア
-        questionInput.focus(); // 入力欄にフォーカスを戻す
+    const responseSpan = document.createElement("span");
+    responseSpan.className = "response";
+    if (response === "Yes") {
+        responseSpan.textContent = "◯ YES";
+        responseSpan.classList.add("response-yes");
+    } else {
+        responseSpan.textContent = "✕ NO";
+        responseSpan.classList.add("response-no");
+    }
+
+    logEntry.appendChild(questionSpan);
+    logEntry.appendChild(responseSpan);
+
+    // 新しい質問をログの一番上に追加
+    qaLog.prepend(logEntry);
+
+    questionInput.value = ""; // 入力欄をクリア
+    questionInput.focus(); // 入力欄にフォーカスを戻す
+
+    // スクロールを一番下まで移動 (新しいログが見えるように)
+    const logContainer = document.getElementById("qa-log-container");
+    logContainer.scrollTop = 0;
     }
 
     // Enterキーで質問を追加できるようにする
-    questionInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            // デフォルトではYesボタンが押されたことにする
-            addLogEntry('Yes');
-        }
+    questionInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        // デフォルトではYesボタンが押されたことにする
+        addLogEntry("Yes");
+    }
     });
 
     // 答えを表示するボタンの処理
-    revealBtn.addEventListener('click', () => {
-        revealedAnswerDisplay.textContent = `答えは「${secretAnswer}」でした！`;
+    revealBtn.addEventListener("click", () => {
+    revealedAnswerDisplay.textContent = `答えは「${secretAnswer}」でした！`;
     });
 
     // リセットボタンの処理
-    resetBtn.addEventListener('click', () => {
-        // ページをリロードするのが一番簡単で確実
-        location.reload();
+    resetBtn.addEventListener("click", () => {
+    // ページをリロードするのが一番簡単で確実
+    location.reload();
     });
 
     // ゲーム終了
@@ -234,7 +248,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
+/*
     // 消費アイテム取得
     const consumedItems = document.getElementById('consumedItems');
     if (consumedItems) {
@@ -269,12 +283,15 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    */
 });
 
 function logMessage(message) {
+    /*
     const logArea = document.getElementById('log');
     if (logArea) {
         logArea.value += `${message}\n`;
     }
     logArea.scrollTop = logArea.scrollHeight; // スクロールを最新のログに合わせる
+    */
 }
