@@ -5,7 +5,7 @@ import { NativeBridgeClient } from './modules/nativebridge.js';
 const appState = {
     userInfo: null,
     roomInfo: null,
-    isHost: false,
+    isHost: true,
 };
 
 const MSG_TYPES = {
