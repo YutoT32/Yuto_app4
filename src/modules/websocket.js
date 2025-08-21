@@ -26,6 +26,9 @@ const SEND_MESSAGE_KIND = {
 class WebSocketClient {
     ws = null;
     handlers = {};
+    onWSOpen = () => {};
+    onWSClose = () => {};
+    onWSError = () => {};
 
     async connect(userID, roomID) {
         return new Promise((resolve, reject) => {
@@ -35,6 +38,7 @@ class WebSocketClient {
 
                 this.ws.onopen = () => {
                     resolve();
+                    this.onWSOpen();
                 };
                 
                 this.ws.onmessage = (event) => {
@@ -43,9 +47,14 @@ class WebSocketClient {
                 };
                 this.ws.onerror = (error) => {
                     reject(error);
+                    this.onWSError(error);
                 };
+                this.ws.onclose = () => {
+                    this.onWSClose();
+                }
             } catch (error) {
                 reject(error);
+                this.onWSError();
             }
         });
     }
