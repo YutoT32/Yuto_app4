@@ -14,6 +14,325 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
+    <style>
+      /* CSSの調整 */
+      :root {
+        --bg-color: #2c3e50;
+        --text-color: #ecf0f1;
+        --primary-color: #3498db;
+        --secondary-color: #2980b9;
+        --yes-color: #2ecc71;
+        --no-color: #e74c3c;
+        --card-bg: #34495e;
+        --border-radius: 8px;
+      }
+
+      body {
+        font-family: "M PLUS Rounded 1c", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        box-sizing: border-box;
+        background: rgba(0, 0, 0, 0); /* OBSで透明にする場合はこちらを有効に */
+      }
+
+      #content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 800px;
+      }
+
+      #game-container {
+        background-color: var(--card-bg);
+        padding: 25px;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        text-align: center;
+        margin-top: 0;
+        color: var(--text-color);
+      }
+
+      h1 {
+        color: var(--primary-color);
+        font-size: 2.5em;
+        margin-bottom: 20px;
+      }
+
+      h2#timer {
+        font-size: 3em;
+        margin-bottom: 20px;
+      }
+
+      /* 設定画面 (初期表示) */
+      #setup-screen {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+        width: 100%;
+      }
+
+      #setup-screen .control-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+
+      input#secret-answer {
+        width: calc(100% - 22px);
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #2c3e50;
+        color: var(--text-color);
+        font-size: 1em;
+        box-sizing: border-box;
+      }
+
+      input#game-duration {
+        width: 80px;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #2c3e50;
+        color: var(--text-color);
+        font-size: 1em;
+        box-sizing: border-box;
+      }
+
+      #start-game-btn {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 12px 15px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.2em;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      #start-game-btn:hover {
+        background-color: var(--secondary-color);
+      }
+
+      /* ゲーム画面 (最初は非表示) */
+      #game-screen {
+        display: none;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      #question-controls {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+        margin-bottom: 20px;
+      }
+
+      #question-controls input {
+        flex-grow: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #2c3e50;
+        color: var(--text-color);
+        font-size: 1em;
+        box-sizing: border-box;
+      }
+
+      .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-size: 1em;
+        cursor: pointer;
+        transition: transform 0.1s;
+      }
+
+      .btn:hover {
+        transform: scale(1.05);
+      }
+
+      #yes-btn {
+        background-color: var(--yes-color);
+      }
+
+      #no-btn {
+        background-color: var(--no-color);
+      }
+
+      #reveal-btn,
+      #reset-btn {
+        background-color: var(--primary-color);
+        width: 100%;
+        padding: 12px;
+        font-size: 1.2em;
+        margin-top: 10px;
+      }
+
+      #reveal-btn:hover,
+      #reset-btn:hover {
+        background-color: var(--secondary-color);
+      }
+
+      /* 質問ログ */
+      #qa-log-container {
+        margin-top: 20px;
+        background-color: #2c3e50;
+        border-radius: 5px;
+        height: 200px; /* 固定高さを設定 */
+        overflow-y: auto; /* 縦スクロールを有効化 */
+        padding: 15px;
+        box-sizing: border-box;
+        color: var(--text-color);
+        font-size: 1em;
+        line-height: 1.4;
+      }
+
+      #qa-log {
+        display: flex;
+        flex-direction: column-reverse; /* 新しいログが上に来るように */
+      }
+
+      .log-entry {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #46627f;
+      }
+
+      .log-entry:last-child {
+        border-bottom: none;
+      }
+
+      .response {
+        font-weight: bold;
+        padding: 3px 8px;
+        border-radius: 4px;
+        color: white;
+        min-width: 60px;
+        text-align: center;
+      }
+
+      .response-yes {
+        background-color: var(--yes-color);
+      }
+
+      .response-no {
+        background-color: var(--no-color);
+      }
+
+      /* 答え表示 */
+      #revealed-answer {
+        margin-top: 20px;
+        font-size: 2em;
+        color: var(--yes-color);
+        text-align: center;
+        min-height: 30px;
+      }
+
+      /* infoエリア (現状維持) */
+      #info {
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        padding: 15px;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+        width: 100%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+        font-size: 0.9em;
+      }
+
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .material-icons {
+        font-size: 1.2em;
+        color: var(--primary-color);
+      }
+
+      /* button-area (現状維持) */
+      .button-area {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .styled-button {
+        background-color: #555;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: background-color 0.3s ease;
+      }
+
+      .styled-button:hover {
+        background-color: #777;
+      }
+
+      .styled-button.danger {
+        background-color: #c0392b;
+      }
+
+      .styled-button.danger:hover {
+        background-color: #e74c3c;
+      }
+
+      /* image (現状維持) */
+      .image {
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+      }
+
+      /* textarea (現状維持) */
+      textarea#log {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        font-size: 0.9em;
+        margin-bottom: 20px;
+        background-color: #2c3e50;
+        color: var(--text-color);
+      }
+    </style>
   </head>
   <body>
     <div id="content">
@@ -103,5 +422,139 @@
         ></textarea>
       </section>
     </div>
+
+    <script>
+      // JavaScript: ゲームの動きを制御
+      const setupScreen = document.getElementById("setup-screen");
+      const gameScreen = document.getElementById("game-screen");
+      const startGameBtn = document.getElementById("start-game-btn");
+      const secretAnswerInput = document.getElementById("secret-answer");
+      const gameDurationInput = document.getElementById("game-duration");
+
+      const timerDisplay = document.getElementById("timer");
+      const questionInput = document.getElementById("question-input");
+      const yesBtn = document.getElementById("yes-btn");
+      const noBtn = document.getElementById("no-btn");
+      const qaLog = document.getElementById("qa-log");
+
+      const revealBtn = document.getElementById("reveal-btn");
+      const revealedAnswerDisplay = document.getElementById("revealed-answer");
+      const resetBtn = document.getElementById("reset-btn");
+
+      let secretAnswer = "";
+      let timerInterval;
+      let timeLeft = 0;
+
+      // ゲーム開始ボタンの処理
+      startGameBtn.addEventListener("click", () => {
+        secretAnswer = secretAnswerInput.value;
+        const duration = parseInt(gameDurationInput.value, 10);
+
+        if (!secretAnswer || isNaN(duration) || duration <= 0) {
+          alert("「答え」と「ゲーム時間」を正しく入力してください。");
+          return;
+        }
+
+        // 答え入力欄を非表示にする
+        secretAnswerInput.style.display = "none";
+        document.querySelector(
+          "#setup-screen > div:first-child > label"
+        ).style.display = "none";
+
+        timeLeft = duration * 60;
+        setupScreen.style.display = "none";
+        gameScreen.style.display = "block";
+
+        updateTimerDisplay();
+        startTimer();
+      });
+
+      // タイマーを開始する関数
+      function startTimer() {
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          updateTimerDisplay();
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerDisplay.textContent = "回答タイム！";
+            // 時間切れになったら質問ボタンを無効化
+            questionInput.disabled = true;
+            yesBtn.disabled = true;
+            noBtn.disabled = true;
+          }
+        }, 1000);
+      }
+
+      // タイマー表示を更新する関数
+      function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${String(minutes).padStart(
+          2,
+          "0"
+        )}:${String(seconds).padStart(2, "0")}`;
+      }
+
+      // Yes/Noボタンの処理
+      yesBtn.addEventListener("click", () => addLogEntry("Yes"));
+      noBtn.addEventListener("click", () => addLogEntry("No"));
+
+      // 質問をログに追加する関数
+      function addLogEntry(response) {
+        const questionText = questionInput.value.trim();
+        if (questionText === "") {
+          alert("質問を入力してください。");
+          return;
+        }
+
+        const logEntry = document.createElement("div");
+        logEntry.className = "log-entry";
+
+        const questionSpan = document.createElement("span");
+        questionSpan.textContent = `Q. ${questionText}`;
+
+        const responseSpan = document.createElement("span");
+        responseSpan.className = "response";
+        if (response === "Yes") {
+          responseSpan.textContent = "◯ YES";
+          responseSpan.classList.add("response-yes");
+        } else {
+          responseSpan.textContent = "✕ NO";
+          responseSpan.classList.add("response-no");
+        }
+
+        logEntry.appendChild(questionSpan);
+        logEntry.appendChild(responseSpan);
+
+        // 新しい質問をログの一番上に追加
+        qaLog.prepend(logEntry);
+
+        questionInput.value = ""; // 入力欄をクリア
+        questionInput.focus(); // 入力欄にフォーカスを戻す
+
+        // スクロールを一番下まで移動 (新しいログが見えるように)
+        const logContainer = document.getElementById("qa-log-container");
+        logContainer.scrollTop = 0;
+      }
+
+      // Enterキーで質問を追加できるようにする
+      questionInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          // デフォルトではYesボタンが押されたことにする
+          addLogEntry("Yes");
+        }
+      });
+
+      // 答えを表示するボタンの処理
+      revealBtn.addEventListener("click", () => {
+        revealedAnswerDisplay.textContent = `答えは「${secretAnswer}」でした！`;
+      });
+
+      // リセットボタンの処理
+      resetBtn.addEventListener("click", () => {
+        // ページをリロードするのが一番簡単で確実
+        location.reload();
+      });
+    </script>
   </body>
 </html>
