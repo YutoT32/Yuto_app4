@@ -8,6 +8,10 @@ const appState = {
     isHost: false,
 };
 
+const MSG_TYPES = {
+    GAME_START: "game_start",
+};
+
 const webSocket = new WebSocketClient();
 const nativeBridge = new NativeBridgeClient(navigator.userAgent);
 
@@ -38,11 +42,10 @@ const setupWebSocketHandlers = () => {
 
     webSocket.onReceiveGamePlayStatus(data => {
         logMessage(`Received game play status: ${JSON.stringify(data)}`);
-        // 状態を更新
-        if (appState.isHost) {
-            // ホスト側で受け取る
-        } else {
-            // ゲスト側で受け取る
+
+        if (data.type === MSG_TYPES.GAME_START) {
+            // ルーム全員が game-screen を表示
+            showGameScreenAndStartTimer(data);
         }
     });
 
@@ -66,7 +69,7 @@ const initialize = async () => {
         ]);
         appState.userInfo = userInfo;
         appState.roomInfo = roomInfo;
-        appState.isHost = (userInfo.user_id === roomInfo.game_room_id);
+//        appState.isHost = (userInfo.user_id === roomInfo.game_room_id);
         setupWebSocketHandlers();
         
         await webSocket.connect(appState.userInfo.user_id, appState.roomInfo.game_room_id);
@@ -116,32 +119,35 @@ let timerInterval;
 let timeLeft = 0;
 
 
+
 // --- アプリケーションの開始 ---
 window.addEventListener('DOMContentLoaded', () => {
     initialize();
 
     // ゲーム開始ボタンの処理
     startGameBtn.addEventListener("click", () => {
-    secretAnswer = secretAnswerInput.value;
-    const duration = parseInt(gameDurationInput.value, 10);
+        if (!appState.isHost) {
+            alert("ゲームを開始できるのはホストのみです。");
+            return;
+        }
 
-    if (!secretAnswer || isNaN(duration) || duration <= 0) {
-        alert("「答え」と「ゲーム時間」を正しく入力してください。");
-        return;
-    }
+        secretAnswer = secretAnswerInput.value;
+        const duration = parseInt(gameDurationInput.value, 10);
+        if (!secretAnswer || isNaN(duration) || duration <= 0) {
+            alert("「答え」と「ゲーム時間」を正しく入力してください。");
+            return;
+        }
 
-    // 答え入力欄を非表示にする
-    secretAnswerInput.style.display = "none";
-    document.querySelector(
-        "#setup-screen > div:first-child > label"
-    ).style.display = "none";
+        // ゲーム開始メッセージをルーム全員に送信
+        const payload = {
+            type: MSG_TYPES.GAME_START,
+            startAt: Math.floor(Date.now() / 1000),
+            durationSec: duration * 60,
+        };
+        webSocket.sendGamePlayStatus(0, payload);
 
-    timeLeft = duration * 60;
-    setupScreen.style.display = "none";
-    gameScreen.style.display = "block";
-
-    updateTimerDisplay();
-    startTimer();
+        // ホスト自身も即座にゲーム画面へ切り替え
+        showGameScreenAndStartTimer(payload);
     });
 
     // タイマーを開始する関数
@@ -162,12 +168,31 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // タイマー表示を更新する関数
     function updateTimerDisplay() {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    timerDisplay.textContent = `${String(minutes).padStart(
-        2,
-        "0"
-    )}:${String(seconds).padStart(2, "0")}`;
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${String(minutes).padStart(
+            2,
+            "0"
+        )}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    function showGameScreenAndStartTimer({ startAt, durationSec }) {
+        // 答え入力欄を隠す
+        if (secretAnswerInput) secretAnswerInput.style.display = "none";
+        const secretLabel = document.querySelector("#setup-screen > div:first-child > label");
+        if (secretLabel) secretLabel.style.display = "none";
+
+        // 画面切り替え
+        setupScreen.style.display = "none";
+        gameScreen.style.display = "block";
+
+        // 残り時間を計算（遅延参加や受信遅れでも同期）
+        const now = Math.floor(Date.now() / 1000);
+        const elapsed = Math.max(0, now - startAt);
+        timeLeft = Math.max(0, durationSec - elapsed);
+
+        updateTimerDisplay();
+        startTimer();
     }
 
     // Yes/Noボタンの処理
