@@ -5,12 +5,15 @@
   --dark-text: #003048;
   --light-text: #ffffff;
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  /* ゲーム用に色を追加 */
+  --yes-color: #28a745;
 }
 
 body {
   margin: 0;
   font-family: "M PLUS Rounded 1c", sans-serif;
   color: var(--dark-text);
+  background-color: #f0f2f5; /* 背景色を少し設定して見やすくします */
 }
 
 #content {
