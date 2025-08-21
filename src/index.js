@@ -55,11 +55,13 @@ const initialize = async () => {
         appState.userInfo = userInfo;
         appState.roomInfo = roomInfo;
         appState.isHost = (userInfo.user_id === roomInfo.game_room_id);
+        setupWebSocketHandlers();
         
         await webSocket.connect(appState.userInfo.user_id, appState.roomInfo.game_room_id);
         
-        webSocket.sendAuthenticate(appState.userInfo.secret);
-        setupWebSocketHandlers();
+        if (appState.isHost) {
+            webSocket.sendAuthenticate(appState.userInfo.secret);
+        }
 
         webSocket.requestUserInfo();
 

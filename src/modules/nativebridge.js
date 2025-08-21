@@ -10,6 +10,23 @@
  * @property {number} game_room_id
  */
 
+
+const userInfoDummy = JSON.stringify({
+  status: "success",
+  data: {
+    secret: "dev_secret",
+    user_id: 13727106 // websocketに接続する視聴者のユーザーID
+  }
+});
+
+const roomInfoDummy = JSON.stringify({
+  status: "success",
+  data: {
+    game_version: "1.0.0",
+    game_room_id: 13734758 // websocketのルームID(配信者のユーザーID)
+  }
+});
+
 class NativeBridgeClient {
   platform = "other";
 
@@ -44,6 +61,8 @@ class NativeBridgeClient {
         return await window.webkit.messageHandlers.fetchUserInfo.postMessage("");
       case "android":
         return this._handleAndroidResponse(await Android.fetchUserInfo());
+      case "development":
+        return this._handleAndroidResponse(userInfoDummy);
       default:
         throw new Error("Unsupported platform");
     }
@@ -59,6 +78,8 @@ class NativeBridgeClient {
         return await window.webkit.messageHandlers.fetchGameRoomInfo.postMessage("");
       case "android":
         return this._handleAndroidResponse(await Android.fetchGameRoomInfo());
+      case "development":
+        return this._handleAndroidResponse(roomInfoDummy);
       default:
         throw new Error("Unsupported platform");
     }
@@ -89,6 +110,8 @@ class NativeBridgeClient {
       case "ios":
         return await window.webkit.messageHandlers.showGameRule.postMessage(url);
       case "android":
+        return this._handleAndroidResponse(await Android.showGameRule(url));
+      case "development":
         return this._handleAndroidResponse(await Android.showGameRule(url));
       default:
         throw new Error("Unsupported platform");
