@@ -51,7 +51,6 @@ const setupWebSocketHandlers = () => {
         }
     });
 
-
     webSocket.onReceiveConsumedItems(data => {
         logMessage(`Received consumed items: ${JSON.stringify(data)}`);
         document.getElementById('consumedItems-time').value = data.consumed || 0;

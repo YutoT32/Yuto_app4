@@ -111,7 +111,7 @@ body {
 #game-screen {
   /* 最初は非表示。JSで表示を切り替えます */
   display: none;
-  max-height: 30vh;
+  max-height: 40vh;
   overflow-y: auto;
 }
 
@@ -176,7 +176,7 @@ body {
   border-radius: 8px;
   padding: 8px;
   /* 高さを固定し、超えたらスクロール */
-  height: 200px;
+  height: 100px;
   overflow-y: auto;
   display: flex;
   /* 新しいログが下に追加され、自動でスクロールするように */
